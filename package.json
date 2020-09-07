@@ -5,8 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "author": "Atishey",
   "license": "ISC",
@@ -17,5 +16,8 @@
     "express": "^4.17.1",
     "mongoose": "^5.10.3",
     "pusher": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=13.0.0"
   }
 }
