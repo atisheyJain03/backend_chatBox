@@ -3,9 +3,8 @@ const Schema = mongoose.Schema;
 
 const messageSchema = new mongoose.Schema(
   {
-    from: Schema.Types.ObjectId,
+    from: String,
     body: String,
-    // timestamp: { type: Date, default: Date.now() },
   },
   {
     timestamps: true,

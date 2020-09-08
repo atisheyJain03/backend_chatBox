@@ -7,12 +7,11 @@ import router from "./route.js";
 import compression from "compression";
 
 const app = express();
-app.use(compression());
-
+app.use(cors());
 dotenv.config({ path: "./config.env" });
 
 app.use(express.json());
-app.use(cors());
+
 // console.log(process.env.DB_PASSWORD);
 
 const dbURL = `mongodb+srv://admin:${process.env.DB_PASSWORD}@cluster0.j99hu.gcp.mongodb.net/WhatsAppdb?retryWrites=true&w=majority`;
@@ -25,7 +24,7 @@ mongoose
     useFindAndModify: false,
   })
   .then((res) => {
-    // console.log("DB Connected successfully ");
+    console.log("DB Connected successfully ");
   })
   .catch((err) => console.log(err.message));
 
@@ -38,6 +37,8 @@ var pusher = new Pusher({
 });
 
 app.use("/", router);
+
+app.use(compression());
 
 const port = process.env.PORT || 8000;
 

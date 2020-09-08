@@ -8,13 +8,13 @@ const roomSchema = new mongoose.Schema({
   name: String,
 });
 
-roomSchema.pre("save", async function (next) {
-  let temp = this.users.map(async (id) => {
-    const user = await User.findOne({ id: id });
-    return user;
-  });
-  this.users = await Promise.all(temp);
-  next();
-});
+// roomSchema.pre("save", async function (next) {
+//   let temp = this.users.map(async (id) => {
+//     const user = await User.findOne({ id: id });
+//     return user;
+//   });
+//   this.users = await Promise.all(temp);
+//   next();
+// });
 
 export default mongoose.model("room", roomSchema);
