@@ -5,6 +5,9 @@ import message from "./controllers/messageController.js";
 
 const router = express.Router();
 
+router.get("/", (req, res) => {
+  res.send("Hello From Server");
+});
 router.get("/room/:id", findRoom);
 router.post("/room", createRoom);
 
