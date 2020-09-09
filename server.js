@@ -1,6 +1,5 @@
 import express from "express";
 import mongoose from "mongoose";
-import Pusher from "pusher";
 import dotenv from "dotenv";
 import cors from "cors";
 import router from "./route.js";
@@ -11,8 +10,7 @@ app.use(cors());
 dotenv.config({ path: "./config.env" });
 
 app.use(express.json());
-
-// console.log(process.env.DB_PASSWORD);
+app.use(compression());
 
 const dbURL = `mongodb+srv://admin:${process.env.DB_PASSWORD}@cluster0.j99hu.gcp.mongodb.net/WhatsAppdb?retryWrites=true&w=majority`;
 
@@ -28,17 +26,7 @@ mongoose
   })
   .catch((err) => console.log(err.message));
 
-var pusher = new Pusher({
-  appId: "1067561",
-  key: "4bada21a2e4ed2a6f96a",
-  secret: "a45a0f1957b89d1fc090",
-  cluster: "ap2",
-  encrypted: true,
-});
-
 app.use("/", router);
-
-app.use(compression());
 
 const port = process.env.PORT || 8000;
 

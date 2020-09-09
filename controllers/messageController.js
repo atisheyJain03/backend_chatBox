@@ -1,37 +1,42 @@
 import Message from "../schemas/messageSchema.js";
 import Room from "../schemas/roomSchema.js";
+import dotenv from "dotenv";
+dotenv.config({ path: "./config.env" });
 
-import Pusher from "pusher";
+import Pusher from "pusher"; // this is used for realtime response
 
+//setting pushe variable
 var pusher = new Pusher({
-  appId: "1067561",
-  key: "4bada21a2e4ed2a6f96a",
-  secret: "a45a0f1957b89d1fc090",
-  cluster: "ap2",
+  appId: process.env.PUSHER_appId,
+  key: process.env.PUSHER_key,
+  secret: process.env.PUSHER_secret,
+  cluster: process.env.PUSHER_cluster,
   encrypted: true,
 });
 
 export default async (req, res) => {
   try {
-    // console.log(req.body.data);
+    // creating a new message with info in body
     const message = await Message.create(req.body.data);
-    // console.log(message);
-    const room = await Room.findOneAndUpdate(
+
+    // this will update the room with _id : req.params.id and push id of new message
+    await Room.findOneAndUpdate(
       { _id: req.params.id },
       { $push: { messages: message } }
     );
-    // console.log(req.params.id);
-    // console.log(room);
+
+    // this will send the response to user with id  req.params.id and add this message to the room of user without reloading the page if the user has subscribed the pusher
     pusher.trigger(req.params.id, "message", {
       message,
       roomId: req.params.id,
     });
-
-    res.status(200).json({
+    // send response
+    res.status(201).json({
       status: "success",
       data: message,
     });
   } catch (err) {
+    // send error
     res.status(500).json({
       status: "error",
       err,

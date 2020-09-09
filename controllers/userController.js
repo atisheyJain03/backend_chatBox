@@ -13,19 +13,20 @@ var pusher = new Pusher({
 
 export const user = async (req, res) => {
   try {
-    // console.log(req.body);
+    // this will first find user in db if no user find with email it will create new
+    // this will also prevent duplicates document by not creating twice
+    // and will also help because we dont have different login and signup button in our frontend
     let user = await User.findOne({ email: req.body.data.email });
 
     if (!user) {
       user = await User.create(req.body.data);
     }
-    // console.log(user);
+
     res.status(200).json({
       status: "success",
       data: user,
     });
   } catch (err) {
-    // console.log(err);
     res.status(500).json({
       status: "error",
       err,
@@ -34,27 +35,55 @@ export const user = async (req, res) => {
 };
 
 export const findUser = async (req, res) => {
+  // this will run when user want to add another user in the room  (in our frontend)
   try {
-    // console.log(req.body.data);
     const user = await User.findOneAndUpdate(
       { email: req.body.data.email },
-      { $addToSet: { roomId: req.params.id } }
+      { $addToSet: { roomId: req.params.id } } // this will only insert if the user if already not present in the room ...... hence prevent duplicates
     );
-
-    const room = await Room.findOne({ _id: req.params.id });
-    // console.log(room);
-    pusher.trigger(req.body.data.email, "room", {
-      data: {
-        data: room,
-      },
-    });
+    // this will only run if user is found with the given email
+    if (user) {
+      const room = await Room.findOne({ _id: req.params.id });
+      pusher.trigger(req.body.data.email, "room", {
+        data: {
+          data: room,
+        },
+      });
+    }
 
     res.status(200).json({
       status: "success",
       data: user,
     });
   } catch (err) {
-    // console.log(err);
+    res.status(500).json({
+      status: "error",
+      err,
+    });
+  }
+};
+
+export const deleteRoom = async (req, res) => {
+  // this will remove the room with given id from user roomId array
+  try {
+    let user = await User.findById(req.params.id);
+
+    // this will filter the room array and push all element which has different values than req.params.id
+    const rooms = user.roomId.filter(
+      (id) => id.toString() !== req.params.roomId
+    );
+    // this will update new roomId array in our db
+    user = await User.findByIdAndUpdate(
+      req.params.id,
+      { roomId: rooms },
+      { new: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: user,
+    });
+  } catch (err) {
     res.status(500).json({
       status: "error",
       err,
