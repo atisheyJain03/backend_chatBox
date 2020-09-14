@@ -41,6 +41,14 @@ export const findUser = async (req, res) => {
       { email: req.body.data.email },
       { $addToSet: { roomId: req.params.id } } // this will only insert if the user if already not present in the room ...... hence prevent duplicates
     );
+
+    // this will add user in the users array of room document
+    const room = await Room.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { users: req.body.data.email } },
+      { new: true }
+    );
+
     // this will only run if user is found with the given email
     if (user) {
       const room = await Room.findOne({ _id: req.params.id });
@@ -72,6 +80,20 @@ export const deleteRoom = async (req, res) => {
     const rooms = user.roomId.filter(
       (id) => id.toString() !== req.params.roomId
     );
+    // console.log(user.email);
+
+    const room = await Room.findById(req.params.roomId);
+
+    const new_users = room.users.filter((email) => email !== user.email);
+
+    await Room.findByIdAndUpdate(
+      req.params.roomId,
+      { users: new_users },
+      { new: true }
+    );
+
+    // console.log(room);
+
     // this will update new roomId array in our db
     user = await User.findByIdAndUpdate(
       req.params.id,
@@ -90,3 +112,44 @@ export const deleteRoom = async (req, res) => {
     });
   }
 };
+
+export const updateUser = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { email: req.body.data.email },
+      { $set: { name: req.body.data.name, image: req.body.data.image } },
+      { new: true }
+    );
+    // this will only run if user is found with the given email
+
+    res.status(200).json({
+      status: "success",
+      data: user,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      err,
+    });
+  }
+};
+
+// export const findOne = async (req, res) => {
+//   try {
+//     console.log("$");
+//     console.log(req.body);
+//     const user = await User.findOne({ email: req.body.data.email });
+
+//     // console.log(user);
+
+//     res.status(200).json({
+//       status: "success",
+//       data: user,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "error",
+//       err,
+//     });
+//   }
+// };
