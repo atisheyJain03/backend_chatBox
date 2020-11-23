@@ -31,12 +31,14 @@ export default async (req, res) => {
       roomId: req.params.id,
     });
     // send response
+    // console.log(message);
     res.status(201).json({
       status: "success",
       data: message,
     });
   } catch (err) {
     // send error
+    // console.log(err)
     res.status(500).json({
       status: "error",
       err,
